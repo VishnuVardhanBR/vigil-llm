@@ -1,17 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './Home';
-import Landing from './Landing';
-import Configure from './Configure'
-
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const RECORDING_INTERVAL_MS = 5000; // 10 seconds
+const RECORDING_INTERVAL_MS = 10000; // 10 seconds
 const CLIP_DURATION_MS = 4000; // 4 seconds
 
-function App() {
-  const [goal, setGoal] = useState('');
+function Home() {
+  const [goal, setGoal] = useState('Monitor my baby and alert me to danger');
   const [appState, setAppState] = useState('onboarding'); // 'onboarding', 'monitoring', 'error'
   const [currentActivity, setCurrentActivity] = useState('Initializing...');
   const [alerts, setAlerts] = useState([]);
@@ -152,14 +145,18 @@ function App() {
     </div>
   );
 
-export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/home" element={<Home />} />
-        <Route path='/configure' element={<Configure />} />
-      </Routes>
-    </Router>
+    <div className="app-container">
+      <div className="video-container">
+        <video ref={videoRef} autoPlay playsInline muted></video>
+      </div>
+      <div className="controls-container">
+        {appState === 'onboarding' && renderOnboarding()}
+        {appState === 'monitoring' && renderMonitoring()}
+        {appState === 'error' && renderError()}
+      </div>
+    </div>
   );
 }
+
+export default Home;
