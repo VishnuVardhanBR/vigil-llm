@@ -9,7 +9,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/live" element={<Home />} />
         <Route path='/configure' element={<Configure />} />
       </Routes>
     </Router>

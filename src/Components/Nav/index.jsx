@@ -10,21 +10,21 @@ const Nav = ({ current = null }) => {
   return (
     <div className='w-1/6 pr-5'>
       <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold ${current === 'home' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
+        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-qualmain text-lg flex p-3 mb-5 font-semibold ${current === 'home' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
         onClick={() => navigate('/')}
       >
         <IoHome className='mr-6 mt-1' />
         Home
       </button>
       <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-2xl flex p-6 mb-5 text-qualmain font-semibold ${current === 'configure' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
+        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-lg flex p-3 mb-5 text-qualmain font-semibold ${current === 'configure' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
         onClick={() => navigate('/configure')}
       >
         <IoSettings className='mr-6 mt-1'/> 
         Configure
       </button>
       <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-2xl flex p-6 mb-5 text-qualmain font-semibold ${current === 'live' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
+        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-lg flex p-3 mb-5 text-qualmain font-semibold ${current === 'live' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
         onClick={() => navigate('/live')}
       >
         <LuScreenShare className='mr-6 mt-1'/> 

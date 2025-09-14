@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from "react-webcam";
-import { FaArrowCircleRight, FaPencilAlt  } from "react-icons/fa";
+import { FaArrowCircleRight, FaPencilAlt } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
 import Nav from "../Components/Nav"
 import { MdDangerous } from "react-icons/md";
@@ -8,6 +8,8 @@ import { MdDangerous } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 
 function ZoneSafety() {
+
+  const [goal, setGoal] = useState('Monitor my baby and alert me to danger');
 
   const [points, setPoints] = useState([]);
   const [rectangle, setRectangle] = useState([]);
@@ -36,7 +38,7 @@ function ZoneSafety() {
 
   return (
     <div className="h-full w-full flex bg-gray-100  p-5">
-<Nav current="configure" />
+      <Nav current="configure" />
       <div className='w-3/6 '>
         <div className='w-full rounded-lg shadow-2xl bg-linear-to-r from-qual to-qualend p-5'>
           <div className='w-full rounded-lg '>
@@ -76,34 +78,44 @@ function ZoneSafety() {
               )}
           </div>
         </div>
-        <div className='w-full rounded-lg shadow-2xl bg-white p-5 mt-5 text-qualmain font-semibold text-2xl'>
-        
-Zone Detection: Detect unwated entry in dangerous Zones.
+        <div className='w-full rounded-lg shadow-2xl bg-white p-5 mt-5 text-qualmain font-semibold text-lg'>
+
+          Zone Detection: Detect unwated entry in dangerous Zones.
 
         </div>
       </div>
       <div className='w-2/6 pl-5'>
 
-      {image? <button className='
-         w-full bg-white h-1/8 rounded-lg text-green-300 text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
+        {image ? <button className='
+         w-full bg-white h-1/8 rounded-lg text-green-300 text-lg flex p-3 mb-5 font-semibold px-12 shadow-2xl'
           onClick={capture}>
-          Image Captured Successfully <FaCircleCheck className='ml-8 mt-1'/></button> :
-        (<button className='
-        cursor-pointer w-full bg-white h-1/8 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
-          onClick={capture}>
-          Capture zone to Annotate <FaArrowCircleRight className='ml-8 mt-1'/></button>)}
+          Image Captured Successfully <FaCircleCheck className='ml-8 mt-1' /></button> :
+          (<button className='
+        cursor-pointer w-full bg-white h-1/8 rounded-lg text-qualmain text-lg flex p-3 mb-5 font-semibold px-12 shadow-2xl'
+            onClick={capture}>
+            Capture zone to Annotate <FaArrowCircleRight className='ml-8 mt-1' /></button>)}
 
-          {points.length === 4 ? <button className='
-         w-full bg-white h-1/8 rounded-lg text-green-300 text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
+        {points.length === 4 ? <button className='
+         w-full bg-white h-1/8 rounded-lg text-green-300 text-lg flex p-3 mb-5 font-semibold px-12 shadow-2xl'
           onClick={capture}>
-          Bounding box selected <FaCircleCheck className='ml-8 mt-1'/></button> :
-        (<button className='
-        w-full bg-white h-1/8 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold pl-8 shadow-2xl'
-          onClick={capture}>
-          Click on the image to Annotate <FaPencilAlt className='ml-4 mt-1'/></button>)}
-          <div className='h-6/8 bg-white rounded-lg shadow-2xl'>
-
-            </div>
+          Bounding box selected <FaCircleCheck className='ml-8 mt-1' /></button> :
+          (<button className='
+        w-full bg-white h-1/8 rounded-lg text-qualmain text-lg flex p-3 mb-5 font-semibold pl-8 shadow-2xl'
+            onClick={capture}>
+            Click on the image to Annotate <FaPencilAlt className='ml-4 mt-1' /></button>)}
+        <div className='h-6/8 bg-white rounded-lg shadow-2xl'>
+          <div className="onboarding">
+            <h1 className='text-lg font-semibold text-qualmain '>AI Monitoring System</h1>
+            <p>Describe what you want to monitor. The AI will generate a security context based on your goal.</p>
+            <textarea
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              rows="3"
+              placeholder="e.g., Monitor my baby and alert me to danger"
+            />
+            <button onClick={() =>{}}>Start Monitoring</button>
+          </div>
+        </div>
 
       </div>
 

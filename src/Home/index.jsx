@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, use } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const RECORDING_INTERVAL_MS = 10000; // 10 seconds
 const CLIP_DURATION_MS = 4000; // 4 seconds
 
 function Home() {
-  const [goal, setGoal] = useState('Monitor my baby and alert me to danger');
-  const [appState, setAppState] = useState('onboarding'); // 'onboarding', 'monitoring', 'error'
+  const goal = useLocation().state?.goal || 'Monitor my baby and alert me to danger';
+  const [appState, setAppState] = useState('monitoring'); // 'onboarding', 'monitoring', 'error'
   const [currentActivity, setCurrentActivity] = useState('Initializing...');
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState('');
@@ -53,6 +54,10 @@ function Home() {
       cleanupAlert();
     };
   }, []);
+
+  useEffect(() => {
+    handleStartMonitoring();
+  }, [goal]);
 
   const startRecordingAndSend = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
@@ -103,20 +108,6 @@ function Home() {
   };
 
 
-  const renderOnboarding = () => (
-    <div className="onboarding">
-      <h1>AI Monitoring System</h1>
-      <p>Describe what you want to monitor. The AI will generate a security context based on your goal.</p>
-      <textarea
-        value={goal}
-        onChange={(e) => setGoal(e.target.value)}
-        rows="3"
-        placeholder="e.g., Monitor my baby and alert me to danger"
-      />
-      <button onClick={handleStartMonitoring}>Start Monitoring</button>
-    </div>
-  );
-
   const renderMonitoring = () => (
     <div className="monitoring">
       <div className="status-panel">
@@ -151,7 +142,6 @@ function Home() {
         <video ref={videoRef} autoPlay playsInline muted></video>
       </div>
       <div className="controls-container">
-        {appState === 'onboarding' && renderOnboarding()}
         {appState === 'monitoring' && renderMonitoring()}
         {appState === 'error' && renderError()}
       </div>
