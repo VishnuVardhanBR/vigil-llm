@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 async function generateMonitoringContext(userGoal) {
-    const prompt = `Based on the user's monitoring goal: "${userGoal}", create a concise, comma-separated list of potential dangers or important events to watch for. This list will be used as context for an AI. For example, for "monitor my baby", a good list would be: "crying, falling, struggling to breathe, stranger in room, blanket over face". Just output the list.`;
+    const prompt = `Based on the user's monitoring goal: "${userGoal}", create a concise, comma-separated list of potential dangers or important events to watch for. This list will be used as context for an AI. For example, for "monitor my baby", a good list would be: "crying, falling, struggling to breathe, stranger in room, blanket over face". Just output the list. MAXIMUM OF 10`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;

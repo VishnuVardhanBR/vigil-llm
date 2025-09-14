@@ -32,18 +32,27 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const cleanup = window.api.onUpdateStatus((data) => {
-      console.log('Received status update:', data);
-      setCurrentActivity(data.activity || '...');
-      if (data.alert && data.alert.alert) {
-        const newAlert = {
-          message: data.alert.message,
-          timestamp: new Date().toLocaleTimeString(),
-        };
-        setAlerts((prevAlerts) => [newAlert, ...prevAlerts]);
-      }
+    // Listener for immediate activity updates
+    const cleanupActivity = window.api.onUpdateActivity((activity) => {
+      console.log('Received activity update:', activity);
+      setCurrentActivity(activity);
     });
-    return cleanup;
+
+    // Listener for delayed alert updates
+    const cleanupAlert = window.api.onUpdateAlert((alertData) => {
+      console.log('Received alert update:', alertData);
+      const newAlert = {
+        message: alertData.message,
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setAlerts((prevAlerts) => [newAlert, ...prevAlerts]);
+    });
+
+    // Cleanup both listeners when the component unmounts
+    return () => {
+      cleanupActivity();
+      cleanupAlert();
+    };
   }, []);
 
   const startRecordingAndSend = useCallback(() => {
@@ -68,7 +77,6 @@ function App() {
         // CHANGE 2 of 2: Send the ArrayBuffer directly. DO NOT create a Buffer here.
         window.api.sendVideoChunk(videoArrayBuffer);
 
-        setCurrentActivity('Analyzing clip...');
       };
 
       mediaRecorderRef.current.start();
