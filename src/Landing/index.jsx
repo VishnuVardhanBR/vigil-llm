@@ -14,7 +14,7 @@ export default function Landing() {
                         </h1>
                         <h3 className='text-[3vh]'>Your private and vigilant companion</h3>
                         <div className='py-3 w-full'>
-                            <button className='cursor-pointer p-2 rounded-full w-[45%] bg-qualmain font-semibold' onClick={() => navigate("/home")}>
+                            <button className='cursor-pointer p-2 rounded-full w-[45%] bg-qualmain font-semibold' onClick={() => navigate("/configure")}>
                                 Get Started
                             </button>
                             <button className='p-2 ml-2 rounded-full w-[45%] bg-transparent border-2 font-semibold'>
