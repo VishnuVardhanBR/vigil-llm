@@ -11,25 +11,27 @@ const RUN_VIDEO_MODEL_INTERVAL = 5000;
 let monitoringInterval;
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  const win = new BrowserWindow({
+    width: 1200,
+    height: 800,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
+      preload: path.join(__dirname, "renderer.js"),
+      nodeIntegration: true,
+      contextIsolation: false
+    }
   });
+  
+  win.loadFile("index.html");
 
   if (isDev) {
     // In development, load from the Vite dev server
-    mainWindow.loadURL('http://localhost:5173');
+    win.loadURL('http://localhost:5173');
     // Open DevTools for debugging
-    mainWindow.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     // In production, load the built HTML file
     // You would first need to run `npm run build`
-    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
 }
 
