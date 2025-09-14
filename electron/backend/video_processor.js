@@ -7,7 +7,7 @@ const scriptPath = path.resolve(__dirname, '..', '..', 'scripts', 'run_video_mod
 
 function analyzeVideo(videoFilePath) {
     return new Promise((resolve, reject) => {
-        const command = 'python3'; // Or 'python' if that's your command
+        const command = 'python'; // Or 'python' if that's your command
         const args = [scriptPath, "--video", videoFilePath];
 
         // --- LOGGING POINT 1: Log the command being executed ---
