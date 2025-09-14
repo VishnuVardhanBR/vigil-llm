@@ -1,82 +1,152 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+const RECORDING_INTERVAL_MS = 10000; // 10 seconds
+const CLIP_DURATION_MS = 4000; // 4 seconds
 
 function App() {
-  const [isOnboarding, setIsOnboarding] = useState(true);
-  const [userTask, setUserTask] = useState('');
+  const [goal, setGoal] = useState('Monitor my baby and alert me to danger');
+  const [appState, setAppState] = useState('onboarding'); // 'onboarding', 'monitoring', 'error'
   const [currentActivity, setCurrentActivity] = useState('Initializing...');
   const [alerts, setAlerts] = useState([]);
+  const [error, setError] = useState('');
+
+  const videoRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const monitoringIntervalRef = useRef(null);
 
   useEffect(() => {
-    // Listener for when onboarding is finished
-    window.electron.onOnboardingComplete(() => {
-      console.log('Frontend: Onboarding complete message received.');
-      setIsOnboarding(false);
-      // Trigger the monitoring loop to start
-      window.electron.startMonitoringLoop();
-    });
-
-    // Listener for activity updates
-    window.electron.onUpdateActivity((activity) => {
-      setCurrentActivity(activity);
-    });
-
-    // Listener for new alerts
-    window.electron.onNewAlert((message) => {
-      setAlerts(prevAlerts => [`${new Date().toLocaleTimeString()}: ${message}`, ...prevAlerts].slice(0, 5)); // Keep last 5 alerts
-    });
-
-    // Clean up listeners when the component unmounts
-    return () => {
-      window.electron.cleanup();
-    };
+    async function setupWebcam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        console.error("Error accessing webcam:", err);
+        setError("Could not access webcam. Please check permissions.");
+        setAppState('error');
+      }
+    }
+    setupWebcam();
   }, []);
 
-  const handleStartMonitoring = () => {
-    if (userTask.trim()) {
-      window.electron.startOnboarding(userTask);
+  useEffect(() => {
+    const cleanup = window.api.onUpdateStatus((data) => {
+      console.log('Received status update:', data);
+      setCurrentActivity(data.activity || '...');
+      if (data.alert && data.alert.alert) {
+        const newAlert = {
+          message: data.alert.message,
+          timestamp: new Date().toLocaleTimeString(),
+        };
+        setAlerts((prevAlerts) => [newAlert, ...prevAlerts]);
+      }
+    });
+    return cleanup;
+  }, []);
+
+  const startRecordingAndSend = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+      const recordedChunks = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+
+        // CHANGE 1 of 2: Convert the Blob to an ArrayBuffer, a browser-safe format.
+        const videoArrayBuffer = await videoBlob.arrayBuffer();
+
+        // CHANGE 2 of 2: Send the ArrayBuffer directly. DO NOT create a Buffer here.
+        window.api.sendVideoChunk(videoArrayBuffer);
+
+        setCurrentActivity('Analyzing clip...');
+      };
+
+      mediaRecorderRef.current.start();
+      console.log('Recording started...');
+      setTimeout(() => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.stop();
+          console.log('Recording stopped.');
+        }
+      }, CLIP_DURATION_MS);
+    }
+  }, []);
+
+  const handleStartMonitoring = async () => {
+    setCurrentActivity('Generating security context...');
+    const response = await window.api.startMonitoring(goal);
+    if (response.success) {
+      setAppState('monitoring');
+      startRecordingAndSend();
+      monitoringIntervalRef.current = setInterval(startRecordingAndSend, RECORDING_INTERVAL_MS);
+    } else {
+      setError(response.message);
+      setAppState('error');
     }
   };
 
-  if (isOnboarding) {
-    return (
-      <div className="container onboarding">
-        <h1>Welcome</h1>
-        <p>Please describe the task you want to monitor.</p>
-        <textarea
-          value={userTask}
-          onChange={(e) => setUserTask(e.target.value)}
-          placeholder="e.g., I want my baby to be monitored in its room"
-        />
-        <button onClick={handleStartMonitoring}>Start Monitoring</button>
+
+  const renderOnboarding = () => (
+    <div className="onboarding">
+      <h1>AI Monitoring System</h1>
+      <p>Describe what you want to monitor. The AI will generate a security context based on your goal.</p>
+      <textarea
+        value={goal}
+        onChange={(e) => setGoal(e.target.value)}
+        rows="3"
+        placeholder="e.g., Monitor my baby and alert me to danger"
+      />
+      <button onClick={handleStartMonitoring}>Start Monitoring</button>
+    </div>
+  );
+
+  const renderMonitoring = () => (
+    <div className="monitoring">
+      <div className="status-panel">
+        <h2>Live Feed</h2>
+        <p><strong>Current Activity:</strong> {currentActivity}</p>
       </div>
-    );
-  }
+      <div className="alerts-panel">
+        <h3>Alerts</h3>
+        <div className="alerts-list">
+          {alerts.length === 0 ? <p>No alerts yet.</p> :
+            alerts.map((alert, index) => (
+              <div key={index} className="alert-item">
+                <strong>{alert.timestamp}:</strong> {alert.message}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderError = () => (
+    <div className="error-screen">
+      <h2>An Error Occurred</h2>
+      <p>{error}</p>
+    </div>
+  );
 
   return (
-    <div className="container monitoring">
-      <div className="main-view">
-        <div className="video-placeholder">
-          <h2>Live Monitoring Active</h2>
-          <p>(Backend is processing a hardcoded video)</p>
-        </div>
+    <div className="app-container">
+      <div className="video-container">
+        <video ref={videoRef} autoPlay playsInline muted></video>
       </div>
-      <div className="sidebar">
-        <div className="activity-box">
-          <h3>Current Activity</h3>
-          <p>{currentActivity}</p>
-        </div>
-        <div className="alerts-box">
-          <h3>Alerts</h3>
-          {alerts.length === 0 ? (
-            <p className="no-alerts">No alerts yet.</p>
-          ) : (
-            <ul>
-              {alerts.map((alert, index) => (
-                <li key={index}>{alert}</li>
-              ))}
-            </ul>
-          )}
-        </div>
+      <div className="controls-container">
+        {appState === 'onboarding' && renderOnboarding()}
+        {appState === 'monitoring' && renderMonitoring()}
+        {appState === 'error' && renderError()}
       </div>
     </div>
   );
