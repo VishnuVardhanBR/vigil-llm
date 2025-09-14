@@ -136,3 +136,4 @@ backend/assets/uploads/
 # Temporary files
 *.tmp
 *.temp
+vigil-llm/
