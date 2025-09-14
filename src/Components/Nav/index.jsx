@@ -1,37 +1,29 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { IoHome } from 'react-icons/io5';
-import { IoSettings } from "react-icons/io5";
-import {LuScreenShare} from "react-icons/lu"
+import { FaCog, FaHome } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';
 
-const Nav = ({ current = null }) => {
-  const navigate = useNavigate();
-
+function Nav() {
   return (
-    <div className='w-1/6 pr-5'>
-      <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold ${current === 'home' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
-        onClick={() => navigate('/')}
-      >
-        <IoHome className='mr-6 mt-1' />
-        Home
-      </button>
-      <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-2xl flex p-6 mb-5 text-qualmain font-semibold ${current === 'configure' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
-        onClick={() => navigate('/configure')}
-      >
-        <IoSettings className='mr-6 mt-1'/> 
-        Configure
-      </button>
-      <button 
-        className={`cursor-pointer w-full bg-white h-20 rounded-lg text-2xl flex p-6 mb-5 text-qualmain font-semibold ${current === 'live' ? 'bg-linear-to-r from-qual to-qualend text-white' : ''}`}
-        onClick={() => navigate('/live')}
-      >
-        <LuScreenShare className='mr-6 mt-1'/> 
-        Live Feed
-      </button>
-    </div>
+    <nav className="nav-bar">
+      <div className="nav-logo">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12L12 4L20 12L12 20L4 12Z" stroke="white" strokeWidth="2" strokeLinejoin="round"/>
+            <path d="M12 15L9 12L12 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span>Vigil</span>
+      </div>
+      <div className="nav-links">
+        <NavLink to="/" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+          <FaHome />
+          <span>Home</span>
+        </NavLink>
+        <NavLink to="/configure" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+          <FaCog />
+          <span>Configure Zone</span>
+        </NavLink>
+      </div>
+    </nav>
   );
-};
+}
 
 export default Nav;

@@ -27,7 +27,7 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
-
+  win.maximize();
   if (isDev) {
     win.loadURL('http://localhost:5173');
     win.webContents.openDevTools();
@@ -65,7 +65,7 @@ ipcMain.on('video-chunk', async (event, videoArrayBuffer) => {
   const window = BrowserWindow.fromWebContents(event.sender);
   try {
     console.log('\n--- [Monitoring Cycle Start] ---');
-    
+
     const videoBuffer = Buffer.from(videoArrayBuffer);
     fs.writeFileSync(tempVideoPath, videoBuffer);
     console.log(`[INFO] Video chunk saved to ${tempVideoPath}`);
@@ -107,9 +107,9 @@ ipcMain.on('video-chunk', async (event, videoArrayBuffer) => {
 
   } catch (error) {
     console.error('[FATAL] Error in monitoring loop:', error.message);
-    window.webContents.send('update-alert', { 
-        alert: true, 
-        message: 'A fatal error occurred in the backend. Check terminal logs.' 
+    window.webContents.send('update-alert', {
+      alert: true,
+      message: 'A fatal error occurred in the backend. Check terminal logs.'
     });
   }
 });

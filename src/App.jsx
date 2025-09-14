@@ -1,17 +1,19 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './Home';
+import { Routes, Route } from 'react-router-dom';
 import Landing from './Landing';
-import Configure from './Configure'
+import Home from './Home';
+import Configure from './Configure';
 
-export default function App() {
+function App() {
   return (
-    <Router>
+    <div className="w-screen h-screen bg-qualcomm-gray">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/home" element={<Home />} />
-        <Route path='/configure' element={<Configure />} />
+        <Route path="/configure" element={<Configure />} />
       </Routes>
-    </Router>
+    </div>
   );
 }
+
+export default App;

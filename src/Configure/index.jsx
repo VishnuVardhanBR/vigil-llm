@@ -1,116 +1,122 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Webcam from "react-webcam";
-import { FaArrowCircleRight, FaPencilAlt  } from "react-icons/fa";
-import { FaCircleCheck } from "react-icons/fa6";
-import Nav from "../Components/Nav"
-import { MdDangerous } from "react-icons/md";
-
 import { useNavigate } from 'react-router-dom';
+import { FaCamera, FaVectorSquare, FaSave, FaTrash } from "react-icons/fa";
+import { useZone } from '../context/ZoneContext';
 
-function ZoneSafety() {
-
-  const [points, setPoints] = useState([]);
-  const [rectangle, setRectangle] = useState([]);
+function Configure() {
+  const { points, setPoints } = useZone();
   const navigate = useNavigate();
-
-
-  const handleClick = (e) => {
-    if (points.length >= 4) return; // stop after 4 clicks
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setPoints((prev) => [...prev, { x, y }]);
-  };
-
   const webcamRef = useRef(null);
   const [image, setImage] = useState(null);
 
   const capture = () => {
     const screenshot = webcamRef.current.getScreenshot();
     setImage(screenshot);
+    setPoints([]);
   };
 
+  const handleCanvasClick = (e) => {
+    if (points.length >= 4 || !image) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setPoints((prev) => [...prev, { x, y }]);
+  };
 
+  const handleSave = () => {
+    navigate('/home');
+  };
+
+  const handleClear = () => {
+    setPoints([]);
+  }
 
   return (
-    <div className="h-full w-full flex bg-gray-100  p-5">
-<Nav current="configure" />
-      <div className='w-3/6 '>
-        <div className='w-full rounded-lg shadow-2xl bg-linear-to-r from-qual to-qualend p-5'>
-          <div className='w-full rounded-lg '>
-            {!image ?
-              (<Webcam
-
+    <div className="w-full h-full flex items-center justify-center p-8 bg-qualcomm-gray">
+      <div className="w-full max-w-7xl h-full flex gap-8">
+        {/* Left Panel: Camera */}
+        <div className="w-3/5 flex flex-col justify-center">
+          <div className='w-full aspect-[4/3] rounded-2xl shadow-2xl bg-qualcomm-dark overflow-hidden'>
+            {!image ? (
+              <Webcam
                 audio={false}
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
-                className="w-full rounded-lg"
-              />) : (
-                <div className="w-full h-full relative" onClick={handleClick}
-                >
-
-                  <img src={image} alt="Captured" className="w-full rounded-lg" />
-                  <svg
-                    width="100%"
-                    height="100%"
-                    style={{ position: "absolute", top: 0, left: 0 }}
-                  >
-                    {/* Draw dots */}
-                    {points.map((p, i) => (
-                      <circle key={i} cx={p.x} cy={p.y} r={4} fill="red" />
-                    ))}
-
-                    {/* Draw polygon only when 4 points selected */}
-                    {points.length === 4 && (
-                      <polygon
-                        points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-                        fill="rgba(0, 128, 255, 0.3)"
-                        stroke="blue"
-                        strokeWidth="2"
-                      />
-                    )}
-                  </svg>
-                </div>
-              )}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="relative cursor-crosshair w-full h-full" onClick={handleCanvasClick}>
+                <img src={image} alt="Captured" className="w-full h-full object-cover" />
+                <svg width="100%" height="100%" className="absolute top-0 left-0 pointer-events-none">
+                  {points.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r={5} fill={points.length === 4 ? 'lime' : 'red'} stroke="white" strokeWidth="1" />
+                  ))}
+                  {points.length > 1 && (
+                    <polyline
+                      points={points.map(p => `${p.x},${p.y}`).join(" ")}
+                      fill="none"
+                      stroke="rgba(255, 0, 0, 0.7)"
+                      strokeWidth="2"
+                      strokeDasharray="5,5"
+                    />
+                  )}
+                  {points.length === 4 && (
+                    <polygon
+                      points={points.map(p => `${p.x},${p.y}`).join(" ")}
+                      fill="rgba(0, 255, 128, 0.4)"
+                      stroke="lime"
+                      strokeWidth="2"
+                    />
+                  )}
+                </svg>
+              </div>
+            )}
           </div>
         </div>
-        <div className='w-full rounded-lg shadow-2xl bg-white p-5 mt-5 text-qualmain font-semibold text-2xl'>
-        
-Zone Detection: Detect unwated entry in dangerous Zones.
 
-        </div>
-      </div>
-      <div className='w-2/6 pl-5'>
+        {/* Right Panel: Controls */}
+        <div className="w-2/5 flex flex-col gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-xl flex-grow flex flex-col">
+            <h2 className="text-3xl font-bold text-qualcomm-dark mb-4">Define Safe Zone</h2>
+            <p className="text-gray-600 mb-6">Create a perimeter by clicking on four points on the captured image. Entry into this zone can trigger an alert.</p>
 
-      {image? <button className='
-         w-full bg-white h-1/8 rounded-lg text-green-300 text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
-          onClick={capture}>
-          Image Captured Successfully <FaCircleCheck className='ml-8 mt-1'/></button> :
-        (<button className='
-        cursor-pointer w-full bg-white h-1/8 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
-          onClick={capture}>
-          Capture zone to Annotate <FaArrowCircleRight className='ml-8 mt-1'/></button>)}
+            <button
+              onClick={capture}
+              disabled={!!image}
+              className="w-full flex items-center justify-center gap-3 text-lg font-semibold py-3 px-6 rounded-lg border-2 border-qualcomm-blue bg-white text-qualcomm-blue transition-colors disabled:bg-gray-200 disabled:border-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed mb-4"
+            >
+              <FaCamera /> Capture Scene
+            </button>
 
-          {points.length === 4 ? <button className='
-         w-full bg-white h-1/8 rounded-lg text-green-300 text-2xl flex p-6 mb-5 font-semibold px-12 shadow-2xl'
-          onClick={capture}>
-          Bounding box selected <FaCircleCheck className='ml-8 mt-1'/></button> :
-        (<button className='
-        w-full bg-white h-1/8 rounded-lg text-qualmain text-2xl flex p-6 mb-5 font-semibold pl-8 shadow-2xl'
-          onClick={capture}>
-          Click on the image to Annotate <FaPencilAlt className='ml-4 mt-1'/></button>)}
-          <div className='h-6/8 bg-white rounded-lg shadow-2xl'>
-
+            <div className="text-center p-4 bg-gray-100 rounded-lg mb-6">
+              <div className="flex items-center justify-center text-qualcomm-dark">
+                <FaVectorSquare className="mr-3 text-2xl" />
+                <span className="text-xl font-medium">Points Selected: {points.length} / 4</span>
+              </div>
             </div>
 
-      </div>
+            <button
+              onClick={handleClear}
+              disabled={points.length === 0}
+              // FIX: Changed hover style
+              className="w-full flex items-center justify-center gap-3 text-lg font-semibold py-3 px-6 rounded-lg border-2 border-qualcomm-red bg-white text-qualcomm-redtransition-colors disabled:bg-gray-200 disabled:border-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed mb-auto"
+            >
+              <FaTrash /> Clear Points
+            </button>
 
+            <button
+              onClick={handleSave}
+              disabled={points.length !== 4}
+              className="w-full flex items-center justify-center gap-3 text-lg font-semibold py-3 px-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <FaSave /> Save Zone & Return
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default ZoneSafety;
-
-
+export default Configure;
