@@ -2,7 +2,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '..', '..', 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
 async function generateMonitoringContext(userGoal) {
     const prompt = `Based on the user's monitoring goal: "${userGoal}", create a concise, comma-separated list of potential dangers or important events to watch for. This list will be used as context for an AI. For example, for "monitor my baby", a good list would be: "crying, falling, struggling to breathe, stranger in room, blanket over face". Just output the list. MAXIMUM OF 10`;
@@ -23,8 +23,8 @@ async function decideOnAlert(context, activities) {
     - Activities Detected in the last few seconds: "${activities}"
 
     Analyze the detected activities in light of the monitoring context.
-    - If any detected activity strongly matches a danger in the context, set "alert" to true and create a clear, concise alert message.
-    - If the activities are normal or benign, set "alert" to false and the message can be an empty string or a simple status.
+    - If any detected activity matches a danger in the context, set "alert" to true and create a clear, concise alert message.
+    - If the activities are normal or benign, set "alert" to false and the message can a simple status.
     
     JSON response:
   `;
