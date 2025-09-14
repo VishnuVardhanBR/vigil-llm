@@ -23,7 +23,7 @@ async function decideOnAlert(context, activities) {
     - Activities Detected in the last few seconds: "${activities}"
 
     Analyze the detected activities in light of the monitoring context.
-    - If any detected activity strongly matches a danger in the context, set "alert" to true and create a clear, concise alert message.
+    - If any detected activity remotely matches a danger in the context, set "alert" to true and create a clear, concise alert message.
     - If the activities are normal or benign, set "alert" to false and the message can be an empty string or a simple status.
     
     JSON response:
