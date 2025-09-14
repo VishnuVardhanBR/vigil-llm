@@ -1,11 +1,11 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const RECORDING_INTERVAL_MS = 10000; // 10 seconds
+const RECORDING_INTERVAL_MS = 5000; // 10 seconds
 const CLIP_DURATION_MS = 4000; // 4 seconds
 
 function App() {
-  const [goal, setGoal] = useState('Monitor my baby and alert me to danger');
+  const [goal, setGoal] = useState('');
   const [appState, setAppState] = useState('onboarding'); // 'onboarding', 'monitoring', 'error'
   const [currentActivity, setCurrentActivity] = useState('Initializing...');
   const [alerts, setAlerts] = useState([]);
